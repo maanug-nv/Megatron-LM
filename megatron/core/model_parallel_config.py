@@ -1,7 +1,7 @@
 # Copyright (c) 2023, NVIDIA CORPORATION. All rights reserved.
 
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, ContextManager, Optional
 
 import torch
@@ -20,7 +20,9 @@ class ModelParallelConfig:
     tensor_model_parallel_size: int = 1
     """Intra-layer model parallelism. Splits tensors across GPU ranks."""
 
-    pipeline_model_parallel_comm_backend: Optional[str] = None
+    pipeline_model_parallel_comm_backend: Optional[str] = field(
+        default=None, metadata={"argparse_meta": {"choices": ["nccl", "ucc"]}}
+    )
     """Configuring backend option of pipeline parallel communication (e.g., nccl, ucc)
        If None, the default backend will be used.
     """
@@ -57,7 +59,9 @@ class ModelParallelConfig:
     """Distributes Moe Experts across sub data parallel dimension."""
 
     expert_tensor_parallel_size: Optional[int] = None
-    """Intra-layer tensor model parallelsm for expert layer. Splits tensors across GPU ranks."""
+    """Intra-layer tensor model parallelsm for expert layer. Splits tensors across GPU ranks.
+       Default is None, which will be set to the value of tensor_model_parallel_size.
+    """
 
     moe_extended_tp: bool = False
     """NOTE: Deprecated from MCore v0.10. This flag is ignored.

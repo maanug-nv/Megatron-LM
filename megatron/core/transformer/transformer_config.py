@@ -1,7 +1,7 @@
 # Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, List, Literal, Optional, Tuple, Union
 
 import torch
@@ -42,7 +42,7 @@ class TransformerConfig(ModelParallelConfig):
     # model architecture
     ####################
 
-    num_layers: int = 0
+    num_layers: int = field(default=0, metadata={"argparse_meta": {"default": None}})
     """Number of transformer layers in a transformer block."""
 
     mtp_num_layers: Optional[int] = None
@@ -93,10 +93,10 @@ class TransformerConfig(ModelParallelConfig):
     """If set, the loss layer will be treated as a standard transformer
     layer in the context of partition and placement for pipeline parallelism."""
 
-    hidden_size: int = 0
+    hidden_size: int = field(default=0, metadata={"argparse_meta": {"default": None}})
     """Transformer hidden size."""
 
-    num_attention_heads: int = 0
+    num_attention_heads: int = field(default=0, metadata={"argparse_meta": {"default": None}})
     """Number of transformer attention heads."""
 
     attention_backend: AttnBackend = AttnBackend.auto
@@ -113,7 +113,9 @@ class TransformerConfig(ModelParallelConfig):
        Supports both TE FusedAttention and local unfused attention. Supports both a fixed offset and 
        and learnable offset."""
 
-    num_query_groups: Optional[int] = None
+    num_query_groups: Optional[int] = field(
+        default=None, metadata={"argparse_meta": {"default": 1}}
+    )
     """Number of query groups for group query attention. If None, normal attention is used."""
 
     ffn_hidden_size: Optional[int] = None
