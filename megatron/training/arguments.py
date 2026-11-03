@@ -2843,17 +2843,9 @@ def _add_checkpointing_args(parser):
     from megatron.training.config import CheckpointConfig
 
     # --enable-msc keeps its own group (_add_msc_args) next to the deprecated --disable-msc.
-    ckpt_factory = ArgumentGroupFactory(CheckpointConfig, exclude=["most_recent_k", "save_optim", "save_rng", "load_optim", "load_rng", "enable_msc"])
+    ckpt_factory = ArgumentGroupFactory(CheckpointConfig, exclude=["most_recent_k", "enable_msc"])
     group = ckpt_factory.build_group(parser, "checkpointing")
 
-    group.add_argument('--no-save-optim', action='store_true', default=None,
-                       help='Do not save current optimizer.')
-    group.add_argument('--no-save-rng', action='store_true', default=None,
-                       help='Do not save current rng state.')
-    group.add_argument('--no-load-optim', action='store_true', default=None,
-                       help='Do not load optimizer when loading checkpoint.')
-    group.add_argument('--no-load-rng', action='store_true', default=None,
-                       help='Do not load rng state when loading checkpoint.')
     group.add_argument('--use-dist-ckpt', action='store_true',
                        dest='use_dist_ckpt_deprecated',
                        help='Deprecated: see --ckpt-format.')
