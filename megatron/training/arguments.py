@@ -1733,17 +1733,17 @@ def validate_args(args, defaults={}):
     # MoE upcycling check
     if args.moe_use_upcycling:
         assert args.save is not None, "When using upcycling, the --save option must be specified."
-        if not args.no_load_optim:
-            args.no_load_optim = True
-            warn_rank_0('enabling --no-load-optim for upcycling.')
-        if not args.no_load_rng:
-            args.no_load_rng = True
-            warn_rank_0('enabling --no-load-rng for upcycling.')
+        if args.load_optim:
+            args.load_optim = False
+            warn_rank_0('disabling --load-optim for upcycling.')
+        if args.load_rng:
+            args.load_rng = False
+            warn_rank_0('disable --load-rng for upcycling.')
 
     # --skip-train checks.
-    if args.skip_train and not args.no_load_optim:
-        args.no_load_optim = True
-        warn_rank_0('enabling --no-load-optim when skipping training.')
+    if args.skip_train and args.load_optim:
+        args.load_optim = False
+        warn_rank_0('disabling --load-optim when skipping training.')
     rl_cfg.validate_run(
         cuda_graph_impl=args.cuda_graph_impl,
         micro_batch_size=args.micro_batch_size,
@@ -1751,7 +1751,7 @@ def validate_args(args, defaults={}):
         train_iters=args.train_iters,
         train_samples=args.train_samples,
         skip_train=args.skip_train,
-        load_optim=not args.no_load_optim,
+        load_optim=args.load_optim,
         save_interval=args.save_interval,
         exit_interval=args.exit_interval,
         separate_inference_model=rl_cfg.uses_separate_inference_model(
