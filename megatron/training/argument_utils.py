@@ -868,31 +868,6 @@ def project_checkpoint_policy(
     return projected
 
 
-# args attribute -> Megatron Core GPTDatasetConfig field, as the legacy entry-point factories read
-# them. The fields the container writes (layout, validation flags) are listed separately.
-_DATASET_FIELD_SOURCES = {
-    "random_seed": "seed",
-    "sequence_length": "seq_length",
-    "split": "split",
-    "num_dataset_builder_threads": "num_dataset_builder_threads",
-    "path_to_cache": "data_cache_path",
-    "mmap_bin_files": "mmap_bin_files",
-    "reset_position_ids": "reset_position_ids",
-    "reset_attention_mask": "reset_attention_mask",
-    "eod_mask_loss": "eod_mask_loss",
-    "create_attention_mask": "create_attention_mask_in_dataloader",
-    "object_storage_cache_path": "object_storage_cache_path",
-    "mid_level_dataset_surplus": "mid_level_dataset_surplus",
-    "allow_ambiguous_pad_tokens": "allow_ambiguous_pad_tokens",
-    "fast_cache_load": "dataloader_fast_cache_load",
-    "defer_npy_index_mmap": "dataloader_defer_npy_index_mmap",
-    "inter_document_masking": "dataloader_inter_document_masking",
-    "sft_mock_dataset_config_json": "sft_mock_dataset_config_json",
-    "varlen_mock_dataset_config_json": "varlen_mock_dataset_config_json",
-    "varlen_sbhd_validation": "varlen_sbhd_validation",
-}
-
-
 def requested_dataset_family(args: Namespace) -> str:
     """The dataset family the legacy flags select: --sft, else --use-varlen-dataset, else
     --fim-data, else gpt, the precedence of the legacy providers. --sft with --use-varlen-dataset
@@ -986,9 +961,31 @@ def gpt_data_config_from_args(args: Namespace, *, standalone: bool = False) -> D
                 )
         # Otherwise (fim) the real class stays and DataConfig.validate() reports the missing source.
 
+    # Dataset config field -> legacy argument attribute. Container-written fields are separate.
+    dataset_field_sources = {
+        "random_seed": "seed",
+        "sequence_length": "seq_length",
+        "split": "split",
+        "num_dataset_builder_threads": "num_dataset_builder_threads",
+        "path_to_cache": "data_cache_path",
+        "mmap_bin_files": "mmap_bin_files",
+        "reset_position_ids": "reset_position_ids",
+        "reset_attention_mask": "reset_attention_mask",
+        "eod_mask_loss": "eod_mask_loss",
+        "create_attention_mask": "create_attention_mask_in_dataloader",
+        "object_storage_cache_path": "object_storage_cache_path",
+        "mid_level_dataset_surplus": "mid_level_dataset_surplus",
+        "allow_ambiguous_pad_tokens": "allow_ambiguous_pad_tokens",
+        "fast_cache_load": "dataloader_fast_cache_load",
+        "defer_npy_index_mmap": "dataloader_defer_npy_index_mmap",
+        "inter_document_masking": "dataloader_inter_document_masking",
+        "sft_mock_dataset_config_json": "sft_mock_dataset_config_json",
+        "varlen_mock_dataset_config_json": "varlen_mock_dataset_config_json",
+        "varlen_sbhd_validation": "varlen_sbhd_validation",
+    }
     kwargs: dict[str, Any] = {
         field_name: deepcopy(getattr(args, source))
-        for field_name, source in _DATASET_FIELD_SOURCES.items()
+        for field_name, source in dataset_field_sources.items()
     }
     kwargs["blend"] = blend
     kwargs["blend_per_split"] = blend_per_split

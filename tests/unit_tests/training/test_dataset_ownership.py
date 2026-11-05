@@ -20,7 +20,6 @@ from megatron.core.optimizer import OptimizerConfig
 from megatron.core.tokenizers.utils.build_tokenizer import build_tokenizer
 from megatron.training import argument_utils, arguments, global_vars
 from megatron.training.argument_utils import (
-    _DATASET_FIELD_SOURCES,
     dataloader_config_from_args,
     gpt_data_config_from_args,
     pretrain_cfg_container_from_args,
@@ -193,7 +192,28 @@ def test_container_from_args_builds_the_core_fields_from_every_data_argument(
     data = cfg.data
     dataset = data.dataset
     assert type(dataset) is GPTDatasetConfig and data.dataset_type is GPTDataset
-    for field_name, source in _DATASET_FIELD_SOURCES.items():
+    expected_field_sources = {
+        "random_seed": "seed",
+        "sequence_length": "seq_length",
+        "split": "split",
+        "num_dataset_builder_threads": "num_dataset_builder_threads",
+        "path_to_cache": "data_cache_path",
+        "mmap_bin_files": "mmap_bin_files",
+        "reset_position_ids": "reset_position_ids",
+        "reset_attention_mask": "reset_attention_mask",
+        "eod_mask_loss": "eod_mask_loss",
+        "create_attention_mask": "create_attention_mask_in_dataloader",
+        "object_storage_cache_path": "object_storage_cache_path",
+        "mid_level_dataset_surplus": "mid_level_dataset_surplus",
+        "allow_ambiguous_pad_tokens": "allow_ambiguous_pad_tokens",
+        "fast_cache_load": "dataloader_fast_cache_load",
+        "defer_npy_index_mmap": "dataloader_defer_npy_index_mmap",
+        "inter_document_masking": "dataloader_inter_document_masking",
+        "sft_mock_dataset_config_json": "sft_mock_dataset_config_json",
+        "varlen_mock_dataset_config_json": "varlen_mock_dataset_config_json",
+        "varlen_sbhd_validation": "varlen_sbhd_validation",
+    }
+    for field_name, source in expected_field_sources.items():
         assert getattr(dataset, field_name) == getattr(args, source), field_name
     assert dataset.sequence_length == 64 and dataset.split == "9,1,0"
     assert dataset.blend == BLEND and dataset.blend_per_split is None
